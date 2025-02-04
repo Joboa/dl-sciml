@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f'Using {device}')
 
 n_epochs = 4
 batch_size = 4
@@ -45,31 +46,56 @@ classes = (
     "truck"
 )
 
+# def imshow(img):
+#     img = img / 2 + 0.5 
+#     npimg = img.numpy()
+#     plt.imshow(np.transpose(npimg, (1, 2, 0)))
+#     plt.show()
+
+
+# # get some random training images
+# dataiter = iter(train_loader)
+# images, labels = next(dataiter)
+# imshow(torchvision.utils.make_grid(images))
+
+
 # Network
 class ConvNet(nn.Module):
     def __init__(self):
         super().__init__()
-        pass
+        self.conv1 = nn.Conv2d(3,6, 5) # input_channnel_size = 3, # output_channnel_size = 6, kernel = 5
+        self.pool = nn.MaxPool2d(2,2) # kernel_size=2, stride=2
+        self.conv2 = nn.Conv2d(6,16, 5)
+        self.fc1 = nn.Linear(16*5*5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10) # 10 for the multiclass output
 
     def forward(self, x):
-        pass
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1,16*5*5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
 
-model = ConvNet.to(device)
+        return x
+
+model = ConvNet().to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 # Training
 n__total_steps = len(train_loader)
-
+print("Data length: ", n__total_steps)
 for epoch in range(n_epochs):
     for i, (images, labels) in enumerate(train_loader):
 
         optimizer.zero_grad()
 
         # image shape: (4,3,32,32)
-        images = images.to(device)
-        labels = labels.to(device)
+        # images = images.to(device)
+        # labels = labels.to(device)
 
         outputs = model(images)
         loss = criterion(outputs, labels)
