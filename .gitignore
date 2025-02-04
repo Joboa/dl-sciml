@@ -2,6 +2,7 @@
 pinn_papers/Soto_2024/data
 Data/PC042YA_Left
 Data/test_data
+nn_archs/data
 
 
 # Byte-compiled / optimized / DLL files
